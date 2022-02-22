@@ -126,9 +126,9 @@ it('passes hits onto ships if they exist', () => {
 
 })
 
-it('can test when a ship has been sunk', () => {
+it('lists ships in an accessible array', () => {
   const gameboard = Gameboard();
 
-  expect(gameboard.getShips()).toEqual([Ship(5), Ship(4), Ship(3), Ship(3), Ship(2)]);
+  expect(JSON.stringify(gameboard.getShips())).toBe(JSON.stringify([Ship(5), Ship(4), Ship(3), Ship(3), Ship(2)]));
 })
 
