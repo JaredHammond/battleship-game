@@ -1,4 +1,4 @@
-const Ship = require('./shipFactory');
+const Ship = require('./Ship');
 
 const Gameboard = () => {
   const board = Array(10).fill().map(() => Array(10).fill().map(() => {
@@ -89,6 +89,15 @@ const Gameboard = () => {
     return ships;
   }
 
+  const allShipsSunk = () => {
+    for (let ship of ships) {
+      if (!ship.isSunk()) {
+        return false
+      }
+    }
+    return true
+  }
+
 
   return {
     getBoard,
@@ -96,6 +105,7 @@ const Gameboard = () => {
     isShipPlacementValid,
     receiveAttack,
     getShips,
+    allShipsSunk,
   }
 }
 

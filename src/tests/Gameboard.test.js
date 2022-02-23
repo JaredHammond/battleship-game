@@ -1,5 +1,5 @@
-const Gameboard = require('../factories/gameboardFactory')
-const Ship = require('../factories/shipFactory');
+const Gameboard = require('../factories/Gameboard')
+const Ship = require('../factories/Ship');
 
 it('makes a 10x10 blank gameboard', () => {
   const gameboard = Gameboard();
@@ -130,5 +130,21 @@ it('lists ships in an accessible array', () => {
   const gameboard = Gameboard();
 
   expect(JSON.stringify(gameboard.getShips())).toBe(JSON.stringify([Ship(5), Ship(4), Ship(3), Ship(3), Ship(2)]));
+})
+
+it('can tell when all ships are sunk', () => {
+  const gameboard = Gameboard();
+
+  const ships = gameboard.getShips();
+
+  expect(gameboard.allShipsSunk()).toBe(false);
+
+  for (let ship of ships) {
+    while (!ship.isSunk()) {
+      ship.hit();
+    }
+  }
+
+  expect(gameboard.allShipsSunk()).toBe(true);
 })
 
