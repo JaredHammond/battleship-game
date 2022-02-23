@@ -1,5 +1,5 @@
-const Gameboard = require('../factories/Gameboard')
-const Ship = require('../factories/Ship');
+const Gameboard = require('../modules/Gameboard')
+const Ship = require('../modules/Ship');
 
 it('makes a 10x10 blank gameboard', () => {
   const gameboard = Gameboard();

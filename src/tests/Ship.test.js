@@ -1,4 +1,4 @@
-const Ship = require('../factories/Ship')
+const Ship = require('../modules/Ship')
 
 it('creates a ship object with a given length', () => {
   const ship = Ship(5);
