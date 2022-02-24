@@ -2,7 +2,7 @@
   "name": "battleship-redo",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "test": "jest"
   },
@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/Jargonite/battleship-redo#readme",
   "devDependencies": {
-    "jest": "^27.5.1"
+    "jest": "^27.5.1",
+    "webpack": "^5.69.1",
+    "webpack-cli": "^4.9.2"
   }
 }
