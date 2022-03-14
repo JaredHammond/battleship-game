@@ -38,7 +38,15 @@ const DOMController = () => {
   const shipPlacementHover = (e, playerBoard) => {
     const {row, col} = e.target.dataset
     
-    let shipCoords = playerBoard.isPlacementHoverValid([row, col]);
+    const [isValid, shipCoords] = playerBoard.isPlacementHoverValid([row, col]);
+
+    let squares = Array.from(playerDomBoard.children);
+
+    if (isValid) {
+      squares.map(square => {
+        //working on adding classes to squares
+      })
+    }
   }
 
   return {

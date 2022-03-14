@@ -119,8 +119,28 @@ const Gameboard = () => {
     }
   }
 
-  const isPlacementHoverValid = () => {
-    
+  const isPlacementHoverValid = (coords) => {
+    const [row, col] = coords;
+    const isValid = isShipPlacementValid(nextShipForPlacement, placementAxis, coords)
+
+    let shipCoords = [];
+
+    if (placementAxis === 'horizontal') {
+      for (let i=0; i < nextShipForPlacement.getLength(); i++) {
+        if (i + col > 9) {break};
+        shipCoords.push([row, i + col])
+      }
+    } else {
+      for (let i=0; i < nextShipForPlacement.getLength(); i++) {
+        if (i + row > 9) {break};
+        shipCoords.push([row + i, col])
+      }
+    }
+
+    return {
+      isValid,
+      shipCoords
+    }
   }
 
 
@@ -134,6 +154,7 @@ const Gameboard = () => {
     placeNextShip,
     getAxis,
     swapAxis,
+    isPlacementHoverValid
   }
 }
 
