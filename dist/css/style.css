@@ -2,7 +2,7 @@
   box-sizing: border-box;
 }
 
-#placeBoard {
+.board {
   width: 400px;
   height: 400px;
   margin: 0 auto;

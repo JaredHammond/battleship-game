@@ -68,16 +68,16 @@ it('validates ship placement in cases where the ship would go off the board hori
   const ship = Ship(5);
   const gameboard = Gameboard();
 
-  expect(gameboard.isShipPlacementValid(ship, 'horizontal', [6, 0])).toBe(false);
-  expect(gameboard.isShipPlacementValid(ship, 'horizontal', [5, 0])).toBe(true);
+  expect(gameboard.isShipPlacementValid(ship, 'horizontal', [0, 6])).toBe(false);
+  expect(gameboard.isShipPlacementValid(ship, 'horizontal', [0, 5])).toBe(true);
 })
 
 it('validates ship placement in cases where the ship would go off the board vertically', () => {
   const ship = Ship(5);
   const gameboard = Gameboard();
 
-  expect(gameboard.isShipPlacementValid(ship, 'vertical', [0,6])).toBe(false);
-  expect(gameboard.isShipPlacementValid(ship, 'horizontal', [0, 5])).toBe(true);
+  expect(gameboard.isShipPlacementValid(ship, 'vertical', [6, 0])).toBe(false);
+  expect(gameboard.isShipPlacementValid(ship, 'vertical', [5, 0])).toBe(true);
 })
 
 it('will not place a ship if the placement is invalid', () => {
@@ -146,5 +146,28 @@ it('can tell when all ships are sunk', () => {
   }
 
   expect(gameboard.allShipsSunk()).toBe(true);
+})
+
+it('controls the placement axis', () => {
+  const gameboard = Gameboard();
+
+  // Initial state
+  expect(gameboard.getAxis()).toBe('horizontal');
+  
+  // Swap axis
+  gameboard.swapAxis();
+  expect(gameboard.getAxis()).toBe('vertical');
+});
+
+it('iterates through the ships of the player for placement', () => {
+  const gameboard = Gameboard();
+  
+  gameboard.placeNextShip('horizontal', [0,0]);
+  gameboard.placeNextShip('vertical', [0,9]);
+
+  expect(gameboard.getBoard()[0][0].ship).toBeTruthy();
+  expect(gameboard.getBoard()[0][9].ship).toBeTruthy();
+
+  expect(gameboard.getBoard()[0][0].ship.getLength()).not.toBe(gameboard.getBoard()[0][9].ship.getLength());
 })
 

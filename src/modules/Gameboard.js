@@ -9,13 +9,14 @@ const Gameboard = () => {
   }))
 
   const ships = [Ship(5), Ship(4), Ship(3), Ship(3), Ship(2)]
+  let nextShipForPlacement = 0 // Index of next ship to be placed in ships array
 
   const getBoard = () => {
     return board;
   }
 
   const placeShip = (ship, direction, coord) => {
-    if (!isShipPlacementValid(ship, direction, coord)) {return}
+    if (!isShipPlacementValid(ship, direction, coord)) {return false}
 
     let [row, column] = coord;
     const shipLength = ship.getLength();
@@ -33,6 +34,14 @@ const Gameboard = () => {
         row++
       }
     }
+
+    return true
+  }
+
+  const placeNextShip = (direction, coord) => {
+    if (placeShip(ships[nextShipForPlacement], direction, coord)) {
+      nextShipForPlacement++
+    }
   }
 
   const isShipPlacementValid = (ship, direction, coord) => {
@@ -42,7 +51,7 @@ const Gameboard = () => {
     // Check for ships already placed
     if (direction === "horizontal") {
       for (let i=0; i < shipLength; i++) {
-        if (board[row][column + i].ship !== null) {
+        if (board[row]?.[column + i]?.ship !== null) {
           return false
         }
       }
@@ -50,7 +59,7 @@ const Gameboard = () => {
 
     if (direction === "vertical") {
       for (let i=0; i < shipLength; i++) {
-        if (board[row + i][column].ship !== null) {
+        if (board[row + i]?.[column]?.ship !== null) {
           return false
         }
       }
@@ -59,13 +68,13 @@ const Gameboard = () => {
 
     // Check if ship would go off the board
     if (direction === "horizontal") {
-      if (shipLength + row > 10) {
+      if (shipLength + column > 10) {
         return false
       }
     }
 
     if (direction === "vertical") {
-      if (shipLength + column > 10) {
+      if (shipLength + row > 10) {
         return false
       }
     }
@@ -98,6 +107,22 @@ const Gameboard = () => {
     return true
   }
 
+  let placementAxis = 'horizontal';
+
+  const getAxis = () => placementAxis;
+
+  const swapAxis = () => {
+    if (placementAxis === 'horizontal') {
+      placementAxis = 'vertical';
+    } else {
+      placementAxis = 'horizontal';
+    }
+  }
+
+  const isPlacementHoverValid = () => {
+    
+  }
+
 
   return {
     getBoard,
@@ -106,6 +131,9 @@ const Gameboard = () => {
     receiveAttack,
     getShips,
     allShipsSunk,
+    placeNextShip,
+    getAxis,
+    swapAxis,
   }
 }
 
