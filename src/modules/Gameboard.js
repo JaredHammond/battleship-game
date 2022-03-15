@@ -1,12 +1,12 @@
 const Ship = require('./Ship');
 
 const Gameboard = () => {
-  const board = Array(10).fill().map(() => Array(10).fill().map(() => {
+  const board = Array(100).fill().map(() => {
     return {
       isHit: false,
       ship: null
     }
-  }))
+  });
 
   const ships = [Ship(5), Ship(4), Ship(3), Ship(3), Ship(2)]
   let nextShipForPlacement = 0 // Index of next ship to be placed in ships array
@@ -15,43 +15,39 @@ const Gameboard = () => {
     return board;
   }
 
-  const placeShip = (ship, direction, coord) => {
-    if (!isShipPlacementValid(ship, direction, coord)) {return false}
+  const placeShip = (ship, direction, square) => {
+    if (!isShipPlacementValid(ship, direction, square)) {return false}
 
-    let [row, column] = coord;
     const shipLength = ship.getLength();
 
     if (direction === "horizontal") {
       for (let i=0; i < shipLength; i++) {
-        board[row][column].ship = ship;
-        column++
+        board[square + i].ship = ship;
       }
     }
 
     if (direction === "vertical") {
       for (let i=0; i < shipLength; i++) {
-        board[row][column].ship = ship;
-        row++
+        board[square + i*10].ship = ship;
       }
     }
 
     return true
   }
 
-  const placeNextShip = (direction, coord) => {
-    if (placeShip(ships[nextShipForPlacement], direction, coord)) {
+  const placeNextShip = (direction, square) => {
+    if (placeShip(ships[nextShipForPlacement], direction, square)) {
       nextShipForPlacement++
     }
   }
 
-  const isShipPlacementValid = (ship, direction, coord) => {
-    let [row, column] = coord;
+  const isShipPlacementValid = (ship, direction, square) => {
     const shipLength = ship.getLength();
 
     // Check for ships already placed
     if (direction === "horizontal") {
       for (let i=0; i < shipLength; i++) {
-        if (board[row]?.[column + i]?.ship !== null) {
+        if (board[square + i]?.ship !== null) {
           return false
         }
       }
@@ -59,7 +55,7 @@ const Gameboard = () => {
 
     if (direction === "vertical") {
       for (let i=0; i < shipLength; i++) {
-        if (board[row + i]?.[column]?.ship !== null) {
+        if (board[square + i*10]?.ship !== null) {
           return false
         }
       }
@@ -68,13 +64,14 @@ const Gameboard = () => {
 
     // Check if ship would go off the board
     if (direction === "horizontal") {
-      if (shipLength + column > 10) {
+
+      if (shipLength + square % 10 > 10) {
         return false
       }
     }
 
     if (direction === "vertical") {
-      if (shipLength + row > 10) {
+      if (shipLength + Math.floor(square / 10) > 10) {
         return false
       }
     }
@@ -84,8 +81,8 @@ const Gameboard = () => {
     return true;
   }
 
-  const receiveAttack = (row, col) => {
-    const square = board[row][col];
+  const receiveAttack = (move) => {
+    const square = board[move];
 
     square.isHit = true;
 
@@ -119,9 +116,8 @@ const Gameboard = () => {
     }
   }
 
-  const isPlacementHoverValid = (coords) => {
-    const [row, col] = coords;
-    const isValid = isShipPlacementValid(nextShipForPlacement, placementAxis, coords)
+  const isPlacementHoverValid = (move) => {
+    const isValid = isShipPlacementValid(nextShipForPlacement, placementAxis, move)
 
     let shipCoords = [];
 

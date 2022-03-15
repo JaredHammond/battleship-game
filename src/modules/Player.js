@@ -1,18 +1,16 @@
 const Player = () => {
-  const prevMoves = Array(10).fill().map(() => Array(10).fill().map(() => null))
+  const prevMoves = Array(100).fill().map(() => null)
 
   const makeMove = () => {
-    let row = Math.floor(Math.random() * 10);
-    let col = Math.floor(Math.random() * 10);
+    let move = Math.floor(Math.random() * 100);
 
-    while (prevMoves[row][col] !== null) {
-      row = Math.floor(Math.random() * 10);
-      col = Math.floor(Math.random() * 10);
+    while (prevMoves[move] !== null) {
+      move = Math.floor(Math.random() * 100);
     }
 
-    prevMoves[row][col] = 'hit';
+    prevMoves[move] = 'hit';
 
-    return [row, col]
+    return move
   }
 
   return {
