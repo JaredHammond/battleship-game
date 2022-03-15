@@ -16,7 +16,7 @@ const Gameboard = () => {
   }
 
   const placeShip = (ship, direction, square) => {
-    if (!isShipPlacementValid(ship, direction, square)) {return false}
+    if (!isShipPlacementValid(ship, direction, square).isValid) {return false}
 
     const shipLength = ship.getLength();
 
@@ -43,12 +43,13 @@ const Gameboard = () => {
 
   const isShipPlacementValid = (ship, direction, square) => {
     const shipLength = ship.getLength();
+    let isValid = true
 
     // Check for ships already placed
     if (direction === "horizontal") {
       for (let i=0; i < shipLength; i++) {
         if (board[square + i]?.ship !== null) {
-          return false
+          isValid = false
         }
       }
     }
@@ -56,7 +57,7 @@ const Gameboard = () => {
     if (direction === "vertical") {
       for (let i=0; i < shipLength; i++) {
         if (board[square + i*10]?.ship !== null) {
-          return false
+          isValid = false
         }
       }
     }
@@ -66,19 +67,38 @@ const Gameboard = () => {
     if (direction === "horizontal") {
 
       if (shipLength + square % 10 > 10) {
-        return false
+        isValid = false
       }
     }
 
     if (direction === "vertical") {
       if (shipLength + Math.floor(square / 10) > 10) {
-        return false
+        isValid = false
       }
     }
 
+    const shipLocation = populateShipLocation(ship, direction, square)
 
     // If nothing is invalid, then return true
-    return true;
+    return {
+      isValid,
+      shipLocation
+    };
+  }
+
+  const populateShipLocation = (ship, direction, move) => {
+    let location = [];
+    const shipLength = ship.getLength()
+
+    if (direction === 'horizontal') {
+      for(let i=0; i<shipLength; i++) {
+        if (move%10 + i > 9) {
+          return location
+        }
+
+        location.push(move + i);
+      }
+    }
   }
 
   const receiveAttack = (move) => {

@@ -55,29 +55,29 @@ it("validates ship placement if there is a ship already there", () => {
   gameboard.placeShip(ship1, 'horizontal', 0);
 
   // Check the exact same placement
-  expect(gameboard.isShipPlacementValid(ship2, 'horizontal', 0)).toBe(false);
+  expect(gameboard.isShipPlacementValid(ship2, 'horizontal', 0).isValid).toBe(false);
 
   // Check an overlapping, but non-identical placement
-  expect(gameboard.isShipPlacementValid(ship2, 'vertical', 0)).toBe(false);
+  expect(gameboard.isShipPlacementValid(ship2, 'vertical', 0).isValid).toBe(false);
 
   // Check true case (placement is valid)
-  expect(gameboard.isShipPlacementValid(ship2, "horizontal", 10)).toBe(true);
+  expect(gameboard.isShipPlacementValid(ship2, "horizontal", 10).isValid).toBe(true);
 });
 
 it('validates ship placement in cases where the ship would go off the board horizontally', () => {
   const ship = Ship(5);
   const gameboard = Gameboard();
 
-  expect(gameboard.isShipPlacementValid(ship, 'horizontal', 6)).toBe(false);
-  expect(gameboard.isShipPlacementValid(ship, 'horizontal', 5)).toBe(true);
+  expect(gameboard.isShipPlacementValid(ship, 'horizontal', 6).isValid).toBe(false);
+  expect(gameboard.isShipPlacementValid(ship, 'horizontal', 5).isValid).toBe(true);
 })
 
 it('validates ship placement in cases where the ship would go off the board vertically', () => {
   const ship = Ship(5);
   const gameboard = Gameboard();
 
-  expect(gameboard.isShipPlacementValid(ship, 'vertical', 60)).toBe(false);
-  expect(gameboard.isShipPlacementValid(ship, 'vertical', 50)).toBe(true);
+  expect(gameboard.isShipPlacementValid(ship, 'vertical', 60).isValid).toBe(false);
+  expect(gameboard.isShipPlacementValid(ship, 'vertical', 50).isValid).toBe(true);
 })
 
 it('will not place a ship if the placement is invalid', () => {
@@ -171,3 +171,16 @@ it('iterates through the ships of the player for placement', () => {
   expect(gameboard.getBoard()[0].ship.getLength()).not.toBe(gameboard.getBoard()[9].ship.getLength());
 })
 
+it('returns the ship location along with boolean when checking valid ship placement', () => {
+  const ship = Ship(5);
+  const gameboard = Gameboard();
+
+  let invalidResult = gameboard.isShipPlacementValid(ship, 'vertical', 60)
+  let validResult = gameboard.isShipPlacementValid(ship, 'vertical', 50)
+
+  expect(invalidResult.isValid).toBe(false);
+  expect(invalidResult.shipLocation).toBe([60, 70, 80, 90])
+
+  expect(validResult.isValid).toBe(true);
+  expect(validResult.shipLocation).toBe([50, 60, 70, 80, 90])
+})
