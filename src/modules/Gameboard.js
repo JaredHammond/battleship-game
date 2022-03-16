@@ -45,6 +45,13 @@ const Gameboard = () => {
     return result;
   }
 
+  function isPlacementFinished() {
+    if (!ships[nextShipForPlacement]) {
+      return true
+    }
+    return false;
+  }
+
   const isShipPlacementValid = (ship, direction, square) => {
     const shipLength = ship.getLength();
     let isValid = true
@@ -111,7 +118,6 @@ const Gameboard = () => {
         location.push(move + i * 10);
       }
     }
-    console.log(location);
     return location
   }
 
@@ -166,6 +172,7 @@ const Gameboard = () => {
     getAxis,
     swapAxis,
     isPlacementHoverValid,
+    isPlacementFinished,
   }
 }
 

@@ -7,7 +7,7 @@
 const DOMController = () => {
 
   // Creates a set of dom nodes that represents the gameboard
-  const domBoard = (playerName) => {
+  function domBoard(playerName) {
     const board = document.createElement('div');
     board.id = playerName;
     board.classList.add('board')
@@ -30,21 +30,26 @@ const DOMController = () => {
   const gameArea = document.getElementById('game-area');
   
   // Renders a single gameboard for the player to place their ships
-  const renderPlacementPhase = (playerBoard) => {
+  function renderPlacementPhase(axisHandler, clickHandler, hoverHandler) {
     const axisButton = document.createElement('button');
     axisButton.innerHTML = 'Swap Ship Axis';
-    axisButton.addEventListener('click', playerBoard.swapAxis)
+    axisButton.addEventListener('click', axisHandler)
 
     gameArea.appendChild(axisButton);
 
     let squares = Array.from(playerDomBoard.children)
 
     squares.forEach(square => {
-      square.addEventListener('mouseenter', e => shipPlacementHover(e, playerBoard))
-      square.addEventListener('click', e => shipPlacement(e, playerBoard));
+      square.addEventListener('mouseenter', hoverHandler)
+      square.addEventListener('click', clickHandler);
     })
 
     gameArea.appendChild(playerDomBoard);
+  }
+
+  function refreshBoards(playerBoard, compBoard) {
+    refreshBoard(playerBoard, playerDomBoard);
+    refreshBoard(compBoard, compDomBoard);
   }
 
   function refreshBoard(board, domBoard) {
@@ -76,11 +81,7 @@ const DOMController = () => {
     });
   }
   
-  const shipPlacementHover = (e, playerBoard) => {
-    const squareId = Number(e.target.dataset.squareId);
-    
-    const {isValid, shipLocation} = playerBoard.isPlacementHoverValid(squareId);
-
+  function renderPlacementHoverStatus (isValid, shipLocation) {
     let squares = Array.from(playerDomBoard.children);
 
     squares.map(square => {
@@ -102,26 +103,77 @@ const DOMController = () => {
     }
   }
 
+  function cleanUpPlacementPhase(clickHandler, hoverHandler) {
+    const squares = Array.from(playerDomBoard.children);
 
-  function shipPlacement(e, playerBoard) {
-    const squareId = Number(e.target.dataset.squareId);
-
-    const isSuccessful = playerBoard.placeNextShip(squareId);
-
-    if (isSuccessful) {
-      refreshBoard(playerBoard, playerDomBoard);
-    }
-
+    squares.map(square => {
+      square.removeEventListener('mouseenter', hoverHandler);
+      square.removeEventListener('click', clickHandler);
+    })
   }
 
   return {
     renderPlacementPhase,
-    shipPlacementHover,
+    renderPlacementHoverStatus,
+    refreshBoards,
+    cleanUpPlacementPhase,
   }
 }
 
 module.exports = DOMController
 
+
+/***/ }),
+
+/***/ 846:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const DOMController = __webpack_require__(654);
+const Gameboard = __webpack_require__(112);
+const Player = __webpack_require__(758);
+
+function GameController() {
+  const dom = DOMController();
+
+  const playerBoard = Gameboard();
+  const computer = Player();
+  const compBoard = Gameboard();
+
+  function startGame() {
+    dom.renderPlacementPhase(playerBoard.swapAxis, shipPlacementHandler, shipPlacementHoverHandler);
+  }
+  
+  
+  // During placement phase, determines whether ship placement would be valid, then renders that state
+  function shipPlacementHoverHandler (e) {
+    // Identifier for square user is hovering over
+    const squareId = Number(e.target.dataset.squareId);
+    
+    const {isValid, shipLocation} = playerBoard.isPlacementHoverValid(squareId);
+  
+    // Render hover state to DOM
+    dom.renderPlacementHoverStatus(isValid, shipLocation);
+  }
+  
+  function shipPlacementHandler(e) {
+    const squareId = Number(e.target.dataset.squareId);
+  
+    const isSuccessful = playerBoard.placeNextShip(squareId);
+  
+    if (isSuccessful) {
+      dom.refreshBoards(playerBoard, compBoard);
+      if (playerBoard.isPlacementFinished()) {
+        dom.cleanUpPlacementPhase(shipPlacementHandler, shipPlacementHoverHandler);
+      }
+    }
+  }
+
+  return {
+    startGame
+  }
+}
+
+module.exports = GameController;
 
 /***/ }),
 
@@ -173,6 +225,13 @@ const Gameboard = () => {
       nextShipForPlacement++
     }
     return result;
+  }
+
+  function isPlacementFinished() {
+    if (!ships[nextShipForPlacement]) {
+      return true
+    }
+    return false;
   }
 
   const isShipPlacementValid = (ship, direction, square) => {
@@ -241,7 +300,6 @@ const Gameboard = () => {
         location.push(move + i * 10);
       }
     }
-    console.log(location);
     return location
   }
 
@@ -296,6 +354,7 @@ const Gameboard = () => {
     getAxis,
     swapAxis,
     isPlacementHoverValid,
+    isPlacementFinished,
   }
 }
 
@@ -395,16 +454,11 @@ module.exports = Ship;
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-const DOMController = __webpack_require__(654);
-const Gameboard = __webpack_require__(112);
-const Player = __webpack_require__(758);
+const GameController = __webpack_require__(846);
 
-const dom = DOMController()
-const playerBoard = Gameboard();
-const opponent = Player();
-const oppBoard = Gameboard();
+game = GameController()
 
-dom.renderPlacementPhase(playerBoard);
+game.startGame()
 })();
 
 /******/ })()

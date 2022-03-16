@@ -1,10 +1,5 @@
-const DOMController = require('./modules/DOMController');
-const Gameboard = require('./modules/Gameboard');
-const Player = require('./modules/Player');
+const GameController = require('./modules/GameController.js');
 
-const dom = DOMController()
-const playerBoard = Gameboard();
-const opponent = Player();
-const oppBoard = Gameboard();
+game = GameController()
 
-dom.renderPlacementPhase(playerBoard);
+game.startGame()
