@@ -13,6 +13,9 @@ function GameController() {
     dom.renderPlacementPhase(playerBoard.swapAxis, shipPlacementHandler, shipPlacementHoverHandler);
   }
   
+  function startBattlePhase() {
+    
+  }
   
   // During placement phase, determines whether ship placement would be valid, then renders that state
   function shipPlacementHoverHandler (e) {
@@ -37,6 +40,8 @@ function GameController() {
       }
     }
   }
+
+
 
   return {
     startGame

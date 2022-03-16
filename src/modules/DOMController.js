@@ -26,6 +26,7 @@ const DOMController = () => {
   // Renders a single gameboard for the player to place their ships
   function renderPlacementPhase(axisHandler, clickHandler, hoverHandler) {
     const axisButton = document.createElement('button');
+    axisButton.id = 'axisButton'
     axisButton.innerHTML = 'Swap Ship Axis';
     axisButton.addEventListener('click', axisHandler)
 
@@ -98,12 +99,17 @@ const DOMController = () => {
   }
 
   function cleanUpPlacementPhase(clickHandler, hoverHandler) {
+    document.getElementById('axisButton').remove();
     const squares = Array.from(playerDomBoard.children);
 
     squares.map(square => {
       square.removeEventListener('mouseenter', hoverHandler);
       square.removeEventListener('click', clickHandler);
     })
+  }
+
+  function renderBattlePhase() {
+    
   }
 
   return {
