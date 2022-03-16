@@ -6,45 +6,112 @@
 
 const DOMController = () => {
 
+  // Creates a set of dom nodes that represents the gameboard
   const domBoard = (playerName) => {
     const board = document.createElement('div');
     board.id = playerName;
     board.classList.add('board')
 
-    for (let i = 0; i < 10; i++) {
-      for (let j = 0; j < 10; j++) {
-        let square = document.createElement('div');
-        square.classList.add('square');
-        square.dataset.row = i;
-        square.dataset.col = j;
-        board.appendChild(square);
-      }
+    for (let i = 0; i < 100; i++) {
+      let square = document.createElement('div');
+      square.classList.add('square');
+      square.dataset.squareId = i;
+      board.appendChild(square);
     }
 
     return board;
   }
 
+  
   const playerDomBoard = domBoard('player');
   const compDomBoard = domBoard('comp');
+
+  // Base DOM node that the game attaches to
   const gameArea = document.getElementById('game-area');
   
-
+  // Renders a single gameboard for the player to place their ships
   const renderPlacementPhase = (playerBoard) => {
-    console.log(playerDomBoard)
+    const axisButton = document.createElement('button');
+    axisButton.innerHTML = 'Swap Ship Axis';
+    axisButton.addEventListener('click', playerBoard.swapAxis)
+
+    gameArea.appendChild(axisButton);
+
     let squares = Array.from(playerDomBoard.children)
 
     squares.forEach(square => {
-      square.addEventListener('mouseover', e => shipPlacementHover(e, playerBoard))
+      square.addEventListener('mouseenter', e => shipPlacementHover(e, playerBoard))
       square.addEventListener('click', e => shipPlacement(e, playerBoard));
     })
 
     gameArea.appendChild(playerDomBoard);
   }
+
+  function refreshBoard(board, domBoard) {
+    const squares = Array.from(domBoard.children);
+    const gameBoard = board.getBoard();
+
+    
+    squares.map(square => {
+      const squareId = Number(square.dataset.squareId);
+
+      // Remove hover state
+      square.classList.remove('valid', 'invalid', 'hover');
+
+      // Add ship locations
+      if (gameBoard[squareId].ship) {
+        square.classList.add('ship');
+      }
+
+      // Checks for hit
+      if (gameBoard[squareId].isHit) {
+        square.classList.add('hit');
+      }
+
+      // Checks for sunk boat
+      if (gameBoard[squareId].ship?.isSunk()) {
+        square.classList.add('sunk');
+      }
+      
+    });
+  }
   
   const shipPlacementHover = (e, playerBoard) => {
-    const {row, col} = e.target.dataset
+    const squareId = Number(e.target.dataset.squareId);
     
-    let shipCoords = playerBoard.isPlacementHoverValid([row, col]);
+    const {isValid, shipLocation} = playerBoard.isPlacementHoverValid(squareId);
+
+    let squares = Array.from(playerDomBoard.children);
+
+    squares.map(square => {
+      square.classList.remove('valid', 'invalid');
+    })
+
+    if (isValid) {
+      squares.map(square => {
+        if (shipLocation.includes(Number(square.dataset.squareId))) {
+          square.classList.add('valid');
+        }
+      })
+    } else {
+      squares.map(square => {
+        if (shipLocation.includes(Number(square.dataset.squareId))) {
+          square.classList.add('invalid');
+        }
+      })
+    }
+  }
+
+
+  function shipPlacement(e, playerBoard) {
+    const squareId = Number(e.target.dataset.squareId);
+
+    const isSuccessful = playerBoard.placeNextShip(squareId);
+
+    if (isSuccessful) {
+      refreshBoard(playerBoard, playerDomBoard);
+    }
+
   }
 
   return {
@@ -64,12 +131,12 @@ module.exports = DOMController
 const Ship = __webpack_require__(547);
 
 const Gameboard = () => {
-  const board = Array(10).fill().map(() => Array(10).fill().map(() => {
+  const board = Array(100).fill().map(() => {
     return {
       isHit: false,
       ship: null
     }
-  }))
+  });
 
   const ships = [Ship(5), Ship(4), Ship(3), Ship(3), Ship(2)]
   let nextShipForPlacement = 0 // Index of next ship to be placed in ships array
@@ -78,52 +145,53 @@ const Gameboard = () => {
     return board;
   }
 
-  const placeShip = (ship, direction, coord) => {
-    if (!isShipPlacementValid(ship, direction, coord)) {return false}
+  const placeShip = (ship, direction, square) => {
 
-    let [row, column] = coord;
+    if (!isShipPlacementValid(ship, direction, square).isValid) {return false}
+
     const shipLength = ship.getLength();
 
     if (direction === "horizontal") {
       for (let i=0; i < shipLength; i++) {
-        board[row][column].ship = ship;
-        column++
+        board[square + i].ship = ship;
       }
     }
 
     if (direction === "vertical") {
       for (let i=0; i < shipLength; i++) {
-        board[row][column].ship = ship;
-        row++
+        board[square + i*10].ship = ship;
       }
     }
 
     return true
   }
 
-  const placeNextShip = (direction, coord) => {
-    if (placeShip(ships[nextShipForPlacement], direction, coord)) {
+  // Tries to place the next ship. If successful, increments to the next ship
+  const placeNextShip = (square) => {
+    let result = placeShip(ships[nextShipForPlacement], placementAxis, square)
+    if (result) {
       nextShipForPlacement++
     }
+    return result;
   }
 
-  const isShipPlacementValid = (ship, direction, coord) => {
-    let [row, column] = coord;
+  const isShipPlacementValid = (ship, direction, square) => {
     const shipLength = ship.getLength();
+    let isValid = true
 
     // Check for ships already placed
     if (direction === "horizontal") {
       for (let i=0; i < shipLength; i++) {
-        if (board[row]?.[column + i]?.ship !== null) {
-          return false
+        if (board[square + i]?.ship !== null) {
+          isValid = false
         }
       }
     }
 
     if (direction === "vertical") {
       for (let i=0; i < shipLength; i++) {
-        if (board[row + i]?.[column]?.ship !== null) {
-          return false
+        if (board[square + i*10]?.ship !== null) {
+          isValid = false
         }
       }
     }
@@ -131,24 +199,54 @@ const Gameboard = () => {
 
     // Check if ship would go off the board
     if (direction === "horizontal") {
-      if (shipLength + column > 10) {
-        return false
+
+      if (shipLength + square % 10 > 10) {
+        isValid = false
       }
     }
 
     if (direction === "vertical") {
-      if (shipLength + row > 10) {
-        return false
+      if (shipLength + Math.floor(square / 10) > 10) {
+        isValid = false
       }
     }
 
+    const shipLocation = populateShipLocation(ship, direction, square)
 
     // If nothing is invalid, then return true
-    return true;
+    return {
+      isValid,
+      shipLocation
+    };
   }
 
-  const receiveAttack = (row, col) => {
-    const square = board[row][col];
+  const populateShipLocation = (ship, direction, move) => {
+    let location = [];
+    const shipLength = ship.getLength()
+
+    if (direction === 'horizontal') {
+      for(let i=0; i<shipLength; i++) {
+        if (move%10 + i > 9) {
+          break
+        }
+
+        location.push(move + i);
+      }
+    } else if (direction === 'vertical') {
+      for(let i=0; i<shipLength; i++) {
+        if (Math.floor(move / 10) + i > 9) {
+          break
+        }
+
+        location.push(move + i * 10);
+      }
+    }
+    console.log(location);
+    return location
+  }
+
+  const receiveAttack = (move) => {
+    const square = board[move];
 
     square.isHit = true;
 
@@ -182,6 +280,10 @@ const Gameboard = () => {
     }
   }
 
+  const isPlacementHoverValid = (squareId) => {
+    return isShipPlacementValid(ships[nextShipForPlacement], placementAxis, squareId);
+  }
+
 
   return {
     getBoard,
@@ -193,6 +295,7 @@ const Gameboard = () => {
     placeNextShip,
     getAxis,
     swapAxis,
+    isPlacementHoverValid,
   }
 }
 
@@ -206,20 +309,18 @@ module.exports = Gameboard
 /***/ ((module) => {
 
 const Player = () => {
-  const prevMoves = Array(10).fill().map(() => Array(10).fill().map(() => null))
+  const prevMoves = Array(100).fill().map(() => null)
 
   const makeMove = () => {
-    let row = Math.floor(Math.random() * 10);
-    let col = Math.floor(Math.random() * 10);
+    let move = Math.floor(Math.random() * 100);
 
-    while (prevMoves[row][col] !== null) {
-      row = Math.floor(Math.random() * 10);
-      col = Math.floor(Math.random() * 10);
+    while (prevMoves[move] !== null) {
+      move = Math.floor(Math.random() * 100);
     }
 
-    prevMoves[row][col] = 'hit';
+    prevMoves[move] = 'hit';
 
-    return [row, col]
+    return move
   }
 
   return {

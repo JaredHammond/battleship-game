@@ -162,8 +162,10 @@ it('controls the placement axis', () => {
 it('iterates through the ships of the player for placement', () => {
   const gameboard = Gameboard();
   
-  gameboard.placeNextShip('horizontal', 0);
-  gameboard.placeNextShip('vertical', 9);
+  gameboard.placeNextShip(0);
+
+  gameboard.swapAxis();
+  gameboard.placeNextShip(9);
 
   expect(gameboard.getBoard()[0].ship).toBeTruthy();
   expect(gameboard.getBoard()[9].ship).toBeTruthy();
@@ -179,8 +181,8 @@ it('returns the ship location along with boolean when checking valid ship placem
   let validResult = gameboard.isShipPlacementValid(ship, 'vertical', 50)
 
   expect(invalidResult.isValid).toBe(false);
-  expect(invalidResult.shipLocation).toBe([60, 70, 80, 90])
+  expect(invalidResult.shipLocation).toEqual([60, 70, 80, 90])
 
   expect(validResult.isValid).toBe(true);
-  expect(validResult.shipLocation).toBe([50, 60, 70, 80, 90])
+  expect(validResult.shipLocation).toEqual([50, 60, 70, 80, 90])
 })

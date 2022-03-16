@@ -16,3 +16,15 @@
   border: 2px black solid;
   background-color: aqua;
 }
+
+.ship {
+  background-color: gray;
+}
+
+.valid {
+  background-color: blue;
+}
+
+.invalid {
+  background-color: red;
+}

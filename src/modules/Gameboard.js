@@ -16,6 +16,7 @@ const Gameboard = () => {
   }
 
   const placeShip = (ship, direction, square) => {
+
     if (!isShipPlacementValid(ship, direction, square).isValid) {return false}
 
     const shipLength = ship.getLength();
@@ -35,10 +36,13 @@ const Gameboard = () => {
     return true
   }
 
-  const placeNextShip = (direction, square) => {
-    if (placeShip(ships[nextShipForPlacement], direction, square)) {
+  // Tries to place the next ship. If successful, increments to the next ship
+  const placeNextShip = (square) => {
+    let result = placeShip(ships[nextShipForPlacement], placementAxis, square)
+    if (result) {
       nextShipForPlacement++
     }
+    return result;
   }
 
   const isShipPlacementValid = (ship, direction, square) => {
@@ -93,12 +97,22 @@ const Gameboard = () => {
     if (direction === 'horizontal') {
       for(let i=0; i<shipLength; i++) {
         if (move%10 + i > 9) {
-          return location
+          break
         }
 
         location.push(move + i);
       }
+    } else if (direction === 'vertical') {
+      for(let i=0; i<shipLength; i++) {
+        if (Math.floor(move / 10) + i > 9) {
+          break
+        }
+
+        location.push(move + i * 10);
+      }
     }
+    console.log(location);
+    return location
   }
 
   const receiveAttack = (move) => {
@@ -136,27 +150,8 @@ const Gameboard = () => {
     }
   }
 
-  const isPlacementHoverValid = (move) => {
-    const isValid = isShipPlacementValid(nextShipForPlacement, placementAxis, move)
-
-    let shipCoords = [];
-
-    if (placementAxis === 'horizontal') {
-      for (let i=0; i < nextShipForPlacement.getLength(); i++) {
-        if (i + col > 9) {break};
-        shipCoords.push([row, i + col])
-      }
-    } else {
-      for (let i=0; i < nextShipForPlacement.getLength(); i++) {
-        if (i + row > 9) {break};
-        shipCoords.push([row + i, col])
-      }
-    }
-
-    return {
-      isValid,
-      shipCoords
-    }
+  const isPlacementHoverValid = (squareId) => {
+    return isShipPlacementValid(ships[nextShipForPlacement], placementAxis, squareId);
   }
 
 
@@ -170,7 +165,7 @@ const Gameboard = () => {
     placeNextShip,
     getAxis,
     swapAxis,
-    isPlacementHoverValid
+    isPlacementHoverValid,
   }
 }
 
