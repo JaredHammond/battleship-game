@@ -19,7 +19,7 @@
   width: 40px;
   height: 40px;
   border: 2px black solid;
-  background-color: aqua;
+  background-color: rgb(41, 79, 122);
   position: relative;
 }
 
@@ -28,7 +28,7 @@
 }
 
 .valid {
-  background-color: blue;
+  background-color: rgb(187, 187, 187);
 }
 
 .hit::after {
