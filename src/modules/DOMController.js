@@ -173,6 +173,23 @@ const DOMController = () => {
     })
   }
 
+  function renderEndGame(winner, handlePlayAgain) {
+    let endModal = document.createElement('div');
+    endModal.id = 'endModal';
+
+    const winnerText = document.createElement('h2');
+    winnerText.innerHTML = `${winner} won the game!`
+    endModal.appendChild(winnerText);
+
+    const playAgainText = document.createElement('p');
+    playAgainText.innerHTML = 'Would you like to play again?';
+    endModal.appendChild(playAgainText);
+
+    const playAgainButton = document.createElement('button');
+    playAgainButton.innerHTML = 'Play Again';
+    playAgainButton.onclick(handlePlayAgain);
+  }
+
   return {
     renderPlacementPhase,
     renderPlacementHoverStatus,

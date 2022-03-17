@@ -64,7 +64,7 @@ function GameController() {
 
       // Check for win
       if (compBoard.allShipsSunk()) {
-        endGame()
+        endGame('player')
         return
       }
 
@@ -80,16 +80,19 @@ function GameController() {
 
     // Check for win
     if (playerBoard.allShipsSunk()) {
-      endGame();
+      endGame('computer');
       return
     }
 
     dom.setupPlayerTurn(handleBattleHover, handleBattleClick);
   }
 
-  function endGame() {
-    //TODO
-    alert('Someone won');
+  function endGame(winner) {
+    const winnerText = winner === 'player' ? 'You' : 'The Computer';
+
+    dom.setupComputerTurn(); // Removes event listeners for hover and click on the board
+    
+    dom.renderEndGame(winnerText);
   }
 
 
