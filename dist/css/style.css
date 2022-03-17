@@ -2,6 +2,11 @@
   box-sizing: border-box;
 }
 
+#game-area {
+  width: 900px;
+  margin: auto;
+}
+
 .board {
   width: 400px;
   height: 400px;
@@ -15,6 +20,7 @@
   height: 40px;
   border: 2px black solid;
   background-color: aqua;
+  position: relative;
 }
 
 .ship {
@@ -25,6 +31,40 @@
   background-color: blue;
 }
 
+.hit::after {
+  content: "";
+  position: absolute;
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  top: 10.5px;
+  left: 10.5px;
+  background-color: whitesmoke;
+}
+
 .invalid {
   background-color: red;
+}
+
+.shipHit {
+  background-color: red;
+}
+
+.sunk {
+  background: linear-gradient(rgb(117, 77, 28), rgb(32, 32, 32));
+}
+
+.battleHover {
+  background-color: whitesmoke;
+}
+
+.left {
+  float: left;
+  margin-left: auto;
+  margin-right: 50px;
+}
+
+.right {
+  float: right;
+  margin-right: auto;
 }

@@ -99,8 +99,20 @@ it('will not place a ship if the placement is invalid', () => {
 it('can receive a hit and mark the spot as hit', () => {
   const gameboard = Gameboard();
 
+  let result = gameboard.receiveAttack(0);
+
+  expect(result).toBe(true);
+  expect(gameboard.getBoard()[0].isHit).toBe(true);
+})
+
+it('rejects hits in places already hit', () => {
+  const gameboard = Gameboard();
+
   gameboard.receiveAttack(0);
 
+  let badResult = gameboard.receiveAttack(0);
+
+  expect(badResult).toBe(false);
   expect(gameboard.getBoard()[0].isHit).toBe(true);
 })
 
@@ -185,4 +197,16 @@ it('returns the ship location along with boolean when checking valid ship placem
 
   expect(validResult.isValid).toBe(true);
   expect(validResult.shipLocation).toEqual([50, 60, 70, 80, 90])
+})
+
+it('can randomly place ships on the board', () => {
+  const gameboard = Gameboard();
+
+  gameboard.randomShipPlacement();
+
+  let board = gameboard.getBoard();
+
+  let shipSquareCount = board.reduce((prev, curr) => curr.ship ? prev + 1 : prev, 0)
+
+  expect(shipSquareCount).toBe(17);
 })

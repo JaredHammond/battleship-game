@@ -39,7 +39,22 @@ const DOMController = () => {
       square.addEventListener('click', clickHandler);
     })
 
+    playerDomBoard.addEventListener('mouseleave', handleMouseLeaveBoard)
+
     gameArea.appendChild(playerDomBoard);
+  }
+
+  function handleMouseLeaveBoard() {
+    let playerSquares = Array.from(playerDomBoard.children);
+    let compSquares = Array.from(compDomBoard.children);
+
+    playerSquares.map(square => {
+      square.classList.remove('valid', 'invalid');
+    });
+
+    compSquares.map(square => {
+      square.classList.remove('battleHover');
+    })
   }
 
   function refreshBoards(playerBoard, compBoard) {
@@ -56,11 +71,13 @@ const DOMController = () => {
       const squareId = Number(square.dataset.squareId);
 
       // Remove hover state
-      square.classList.remove('valid', 'invalid', 'hover');
+      square.classList.remove('valid', 'invalid', 'battleHover');
 
-      // Add ship locations
-      if (gameBoard[squareId].ship) {
-        square.classList.add('ship');
+      // Add ship locations to player board
+      if (domBoard === playerDomBoard) {
+        if (gameBoard[squareId].ship) {
+          square.classList.add('ship');
+        }
       }
 
       // Checks for hit
@@ -71,6 +88,12 @@ const DOMController = () => {
       // Checks for sunk boat
       if (gameBoard[squareId].ship?.isSunk()) {
         square.classList.add('sunk');
+      }
+
+      // If ship is hit add effect
+      if (gameBoard[squareId].ship && gameBoard[squareId].isHit) {
+        square.classList.add('shipHit');
+        square.classList.remove('hit')
       }
       
     });
@@ -109,7 +132,45 @@ const DOMController = () => {
   }
 
   function renderBattlePhase() {
-    
+
+    playerDomBoard.classList.add('left');
+    compDomBoard.classList.add('right')
+
+    gameArea.appendChild(compDomBoard);
+  }
+
+  function renderBattleHover(square, gameboard) {
+    let allSquares = Array.from(compDomBoard.children);
+
+    allSquares.map(element => {
+      element.classList.remove('battleHover');
+    })
+
+    if (gameboard[square.dataset.squareId].isHit) {
+      return
+    }
+
+    square.classList.add('battleHover');
+  }
+
+  function setupPlayerTurn(handleBattleHover, handleBattleClick) {
+    const compSquares = Array.from(compDomBoard.children);
+
+    compSquares.map(square => {
+      square.addEventListener('mouseenter', handleBattleHover);
+      square.addEventListener('click', handleBattleClick);
+    })
+
+    compDomBoard.addEventListener('mouseleave', handleMouseLeaveBoard);
+  }
+
+  function setupComputerTurn(handleBattleHover, handleBattleClick) {
+    let squares = Array.from(compDomBoard.children);
+
+    squares.map(square => {
+      square.removeEventListener('mouseenter', handleBattleHover);
+      square.removeEventListener('click', handleBattleClick);
+    })
   }
 
   return {
@@ -117,6 +178,10 @@ const DOMController = () => {
     renderPlacementHoverStatus,
     refreshBoards,
     cleanUpPlacementPhase,
+    renderBattlePhase,
+    renderBattleHover,
+    setupComputerTurn,
+    setupPlayerTurn,
   }
 }
 

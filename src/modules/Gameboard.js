@@ -124,11 +124,14 @@ const Gameboard = () => {
   const receiveAttack = (move) => {
     const square = board[move];
 
+    if (square.isHit) {return false};
+
     square.isHit = true;
 
     if (square.ship !== null) {
       square.ship.hit();
     }
+    return true
   }
 
   const getShips = () => {
@@ -160,6 +163,22 @@ const Gameboard = () => {
     return isShipPlacementValid(ships[nextShipForPlacement], placementAxis, squareId);
   }
 
+  function randomShipPlacement() {
+    while (nextShipForPlacement < ships.length) {
+
+      // Randomly swap axis
+      if (Math.floor(Math.random() * 2) % 2 === 0) {
+        swapAxis();
+      }
+
+      // Pick random square for placement
+      let move = Math.floor(Math.random() * 100)
+
+      // Attempt to place ship
+      placeNextShip(move)
+    }
+  }
+
 
   return {
     getBoard,
@@ -173,6 +192,7 @@ const Gameboard = () => {
     swapAxis,
     isPlacementHoverValid,
     isPlacementFinished,
+    randomShipPlacement,
   }
 }
 
