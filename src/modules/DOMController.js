@@ -25,6 +25,14 @@ const DOMController = () => {
   
   // Renders a single gameboard for the player to place their ships
   function renderPlacementPhase(axisHandler, clickHandler, hoverHandler) {
+    const instruction = document.createElement('h2');
+    instruction.innerHTML = 'Place your ships';
+    instruction.id = 'instruction'
+    gameArea.appendChild(instruction);
+
+    const subInstruction = document.createElement('p');
+    
+
     const axisButton = document.createElement('button');
     axisButton.id = 'axisButton'
     axisButton.innerHTML = 'Swap Ship Axis';
