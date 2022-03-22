@@ -2,9 +2,19 @@
   box-sizing: border-box;
 }
 
+h1 {
+  text-align: center;
+}
+
+button {
+  margin: 20px auto;
+}
+
 #game-area {
   width: 900px;
   margin: auto;
+  position: relative;
+  text-align: center;
 }
 
 .board {
@@ -73,4 +83,16 @@
 .right {
   float: right;
   margin-right: auto;
+}
+
+#endModal {
+  position: absolute;
+  width: 400px;
+  height: 300px;
+  border-radius: 10px;
+  border:rgb(32, 32, 32) solid 1px;
+  background-color: deepskyblue;
+  top: 100px;
+  left: 250px;
+  text-align: center;
 }

@@ -90,9 +90,14 @@ function GameController() {
   function endGame(winner) {
     const winnerText = winner === 'player' ? 'You' : 'The Computer';
 
-    dom.setupComputerTurn(); // Removes event listeners for hover and click on the board
+    dom.setupComputerTurn(handleBattleHover, handleBattleClick); // Removes event listeners for hover and click on the board
     
-    dom.renderEndGame(winnerText);
+    dom.renderEndGame(winnerText, handlePlayAgain);
+  }
+
+  function handlePlayAgain() {
+    alert('PLay again')
+    //TODO
   }
 
 

@@ -195,7 +195,10 @@ const DOMController = () => {
 
     const playAgainButton = document.createElement('button');
     playAgainButton.innerHTML = 'Play Again';
-    playAgainButton.onclick(handlePlayAgain);
+    playAgainButton.onclick = handlePlayAgain;
+    endModal.appendChild(playAgainButton);
+
+    gameArea.appendChild(endModal);
   }
 
   return {
@@ -207,6 +210,7 @@ const DOMController = () => {
     renderBattleHover,
     setupComputerTurn,
     setupPlayerTurn,
+    renderEndGame,
   }
 }
 
