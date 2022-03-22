@@ -25,6 +25,14 @@ const DOMController = () => {
   
   // Renders a single gameboard for the player to place their ships
   function renderPlacementPhase(axisHandler, clickHandler, hoverHandler) {
+    const instruction = document.createElement('h2');
+    instruction.innerHTML = 'Place your ships';
+    instruction.id = 'instruction'
+    gameArea.appendChild(instruction);
+
+    const subInstruction = document.createElement('p');
+    
+
     const axisButton = document.createElement('button');
     axisButton.id = 'axisButton'
     axisButton.innerHTML = 'Swap Ship Axis';
@@ -171,6 +179,23 @@ const DOMController = () => {
       square.removeEventListener('mouseenter', handleBattleHover);
       square.removeEventListener('click', handleBattleClick);
     })
+  }
+
+  function renderEndGame(winner, handlePlayAgain) {
+    let endModal = document.createElement('div');
+    endModal.id = 'endModal';
+
+    const winnerText = document.createElement('h2');
+    winnerText.innerHTML = `${winner} won the game!`
+    endModal.appendChild(winnerText);
+
+    const playAgainText = document.createElement('p');
+    playAgainText.innerHTML = 'Would you like to play again?';
+    endModal.appendChild(playAgainText);
+
+    const playAgainButton = document.createElement('button');
+    playAgainButton.innerHTML = 'Play Again';
+    playAgainButton.onclick(handlePlayAgain);
   }
 
   return {
