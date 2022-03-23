@@ -39,9 +39,6 @@ const DOMController = () => {
     instruction.id = 'instruction'
     gameArea.appendChild(instruction);
 
-    const subInstruction = document.createElement('p');
-    
-
     const axisButton = document.createElement('button');
     axisButton.id = 'axisButton'
     axisButton.innerHTML = 'Swap Ship Axis';
@@ -149,9 +146,9 @@ const DOMController = () => {
   }
 
   function renderBattlePhase() {
-
     playerDomBoard.classList.add('left');
-    compDomBoard.classList.add('right')
+    compDomBoard.classList.add('right');
+
 
     gameArea.appendChild(compDomBoard);
   }
@@ -171,6 +168,9 @@ const DOMController = () => {
   }
 
   function setupPlayerTurn(handleBattleHover, handleBattleClick) {
+    const instruction = document.getElementById('instruction');
+    instruction.innerHTML = "Attack your opponent\'s board"
+
     const compSquares = Array.from(compDomBoard.children);
 
     compSquares.map(square => {
