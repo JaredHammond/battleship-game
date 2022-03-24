@@ -188,18 +188,6 @@ function ComputerLogic(oppBoard, prevMoves = []) {
     optimizedRandomMove,
     bestMove,
   };
-
-  /*
-    
-    -Push all moves into an array  !Done
-    -Search through array for move that is hit but not sunk  !DONE
-    -Once on that square, look for hits (but not sunk) around the hit. Top, right, bottom left
-        -Need to have a way to not wrap around to next row on board e.g. 9 -> 10
-    -If hit is found around the hit, attack the opposite square. (left is hit, so attack right)
-        -If that fails, move in the original direction until there is a hit or a fail
-    -
-    
-    */
 }
 
 module.exports = ComputerLogic;
