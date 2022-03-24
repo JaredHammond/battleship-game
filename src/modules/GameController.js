@@ -1,45 +1,53 @@
-const DOMController = require('./DOMController');
-const Gameboard = require('./Gameboard');
-const Player = require('./Player');
+const DOMController = require("./DOMController");
+const Gameboard = require("./Gameboard");
+const Player = require("./Player");
 
 function GameController() {
   const dom = DOMController();
 
   const playerBoard = Gameboard();
-  const computer = Player();
+  const computer = Player(playerBoard);
   const compBoard = Gameboard();
 
   function startGame() {
-    dom.renderPlacementPhase(playerBoard.swapAxis, shipPlacementHandler, shipPlacementHoverHandler);
+    dom.renderPlacementPhase(
+      playerBoard.swapAxis,
+      shipPlacementHandler,
+      shipPlacementHoverHandler
+    );
   }
-  
+
   function startBattlePhase() {
     compBoard.randomShipPlacement();
 
-    dom.renderBattlePhase()
+    dom.renderBattlePhase();
     dom.setupPlayerTurn(handleBattleHover, handleBattleClick);
   }
-  
+
   // During placement phase, determines whether ship placement would be valid, then renders that state
-  function shipPlacementHoverHandler (e) {
+  function shipPlacementHoverHandler(e) {
     // Identifier for square user is hovering over
     const squareId = Number(e.target.dataset.squareId);
-    
-    const {isValid, shipLocation} = playerBoard.isPlacementHoverValid(squareId);
-  
+
+    const { isValid, shipLocation } =
+      playerBoard.isPlacementHoverValid(squareId);
+
     // Render hover state to DOM
     dom.renderPlacementHoverStatus(isValid, shipLocation);
   }
-  
+
   function shipPlacementHandler(e) {
     const squareId = Number(e.target.dataset.squareId);
-  
+
     const isSuccessful = playerBoard.placeNextShip(squareId);
-  
+
     if (isSuccessful) {
       dom.refreshBoards(playerBoard, compBoard);
       if (playerBoard.isPlacementFinished()) {
-        dom.cleanUpPlacementPhase(shipPlacementHandler, shipPlacementHoverHandler);
+        dom.cleanUpPlacementPhase(
+          shipPlacementHandler,
+          shipPlacementHoverHandler
+        );
 
         startBattlePhase(handleBattleHover, handleBattleClick);
       }
@@ -47,7 +55,7 @@ function GameController() {
   }
 
   function handleBattleHover(e) {
-    const square = e.target
+    const square = e.target;
 
     // Add hover state
     dom.renderBattleHover(square, compBoard.getBoard());
@@ -59,52 +67,50 @@ function GameController() {
 
     // Do attack. If it returns true, hit was successful, refresh boards and setup for computer turn
     if (compBoard.receiveAttack(squareId)) {
-      e.target.removeEventListener('click', handleBattleClick);
+      e.target.removeEventListener("click", handleBattleClick);
       dom.refreshBoards(playerBoard, compBoard);
 
       // Check for win
       if (compBoard.allShipsSunk()) {
-        endGame('player')
-        return
+        endGame("player");
+        return;
       }
 
       dom.setupComputerTurn(handleBattleHover, handleBattleClick);
-      computerTurn()
+      computerTurn();
     }
   }
 
   function computerTurn() {
     // Attack player board
-    playerBoard.receiveAttack(computer.makeMove())
+    playerBoard.receiveAttack(computer.makeMove());
     dom.refreshBoards(playerBoard, compBoard);
 
     // Check for win
     if (playerBoard.allShipsSunk()) {
-      endGame('computer');
-      return
+      endGame("computer");
+      return;
     }
 
     dom.setupPlayerTurn(handleBattleHover, handleBattleClick);
   }
 
   function endGame(winner) {
-    const winnerText = winner === 'player' ? 'You' : 'The Computer';
+    const winnerText = winner === "player" ? "You" : "The Computer";
 
     dom.setupComputerTurn(handleBattleHover, handleBattleClick); // Removes event listeners for hover and click on the board
-    
+
     dom.renderEndGame(winnerText, handlePlayAgain);
   }
 
   function handlePlayAgain() {
-    alert('PLay again')
+    alert("PLay again");
     //TODO
   }
 
-
-
   return {
-    startGame
-  }
+    startGame,
+  };
 }
 
 module.exports = GameController;

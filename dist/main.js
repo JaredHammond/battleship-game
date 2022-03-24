@@ -1,6 +1,221 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/modules/ComputerLogic.js":
+/*!**************************************!*\
+  !*** ./src/modules/ComputerLogic.js ***!
+  \**************************************/
+/***/ ((module) => {
+
+function ComputerLogic(oppBoard, prevMoves = []) {
+  const boardState = oppBoard.getBoard();
+
+  function bestMove() {
+    for (let move of prevMoves) {
+      // Find most recent ship hit and go from there
+      if (boardState[move].ship && !boardState[move].ship.isSunk()) {
+        // Search for two hits in a row and keep going in that axis
+        let nextMove = continueAttackingInRow(move);
+        if (nextMove !== null) {
+          prevMoves.unshift(nextMove);
+          return nextMove;
+        }
+
+        // If it can't go in the same direction, it tries the other direction
+        nextMove = attackTheOppositeWay(move);
+        if (nextMove !== null) {
+          prevMoves.unshift(nextMove);
+          return nextMove;
+        }
+
+        // Couldn't find another hit square, so hit any adjacent square
+        nextMove = attackAnyAdjacentSquare(move);
+        if (nextMove !== null) {
+          prevMoves.unshift(nextMove);
+          return nextMove;
+        }
+      }
+    }
+
+    return optimizedRandomMove();
+  }
+
+  function attackTheOppositeWay(initialSquare) {
+    for (let i = 0; i < 4; i++) {
+      let s = adjacentSquare(initialSquare, i);
+      if (s === null) {
+        continue;
+      }
+
+      if (boardState[s].ship && boardState[s].isHit) {
+        while (boardState[s].isHit) {
+          s = adjacentSquare(s, i);
+          if (s === null) {
+            break;
+          }
+        }
+        if (s === null) {
+          continue;
+        }
+
+        if (!boardState[s].isHit) {
+          return s;
+        }
+      }
+    }
+    return null;
+  }
+
+  function continueAttackingInRow(initialSquare) {
+    for (let i = 0; i < 4; i++) {
+      let s = adjacentSquare(initialSquare, i);
+      if (s === null) {
+        continue;
+      }
+
+      if (boardState[s].ship && boardState[s].isHit) {
+        let nextMove = oppositeAdjacentSquare(initialSquare, i);
+        if (nextMove === null) {
+          continue;
+        }
+
+        if (!boardState[nextMove].isHit) {
+          return nextMove;
+        }
+      }
+    }
+    return null;
+  }
+
+  function attackAnyAdjacentSquare(initialSquare) {
+    // Hit non-hit squares around the initial square
+    for (let i = 0; i <= 3; i++) {
+      let move = adjacentSquare(initialSquare, i);
+
+      if (move === null) {
+        continue;
+      }
+
+      if (!boardState[move].isHit) {
+        return move;
+      }
+    }
+
+    return null;
+  }
+
+  // Accepts a square and a direction which can be a string or a number.
+  // Numbers correspond to direction in this order => 0:'up', 1:'right', 2:'down', 3:'left'
+  function adjacentSquare(square, direction) {
+    switch (direction) {
+      case "up":
+      case 0:
+        return square - 10 >= 0 ? square - 10 : null;
+
+      case "right":
+      case 1:
+        if (square % 10 > (square + 1) % 10 || square === 99) {
+          return null;
+        }
+        return square + 1;
+
+      case "down":
+      case 2:
+        return square + 10 <= 99 ? square + 10 : null;
+
+      case "left":
+      case 3:
+        if (square % 10 < (square - 1) % 10 || square === 0) {
+          return null;
+        }
+        return square - 1;
+    }
+  }
+
+  function oppositeAdjacentSquare(square, direction) {
+    switch (direction) {
+      case "up":
+      case 0:
+        return adjacentSquare(square, 2);
+
+      case "right":
+      case 1:
+        return adjacentSquare(square, 3);
+
+      case "down":
+      case 2:
+        return adjacentSquare(square, 0);
+
+      case "left":
+      case 3:
+        return adjacentSquare(square, 1);
+    }
+  }
+
+  function optimizedRandomMove() {
+    // Only pick tiles in a checkerboard pattern. (Ships must intersect)
+
+    let tensPlace = Math.floor(Math.random() * 10);
+    let move;
+
+    // Even rows should have even ones place. Odd rows have odd ones place.
+    if (tensPlace % 2 === 0) {
+      move = tensPlace * 10 + Math.floor(Math.random() * 5) * 2;
+    } else {
+      move = tensPlace * 10 + (Math.floor(Math.random() * 5) * 2 + 1);
+    }
+
+    while (prevMoves.includes(move)) {
+      tensPlace = Math.floor(Math.random() * 10);
+
+      // Even rows should have even ones place. Odd rows have odd ones place.
+      if (tensPlace % 2 === 0) {
+        move = tensPlace * 10 + Math.floor(Math.random() * 5) * 2;
+      } else {
+        move = tensPlace * 10 + (Math.floor(Math.random() * 5) * 2 + 1);
+      }
+    }
+
+    prevMoves.unshift(move);
+
+    return move;
+  }
+
+  function randomMove() {
+    let move = Math.floor(Math.random() * 100);
+
+    while (prevMoves.includes(move)) {
+      move = Math.floor(Math.random() * 100);
+    }
+
+    prevMoves.unshift(move);
+    return move;
+  }
+
+  return {
+    randomMove,
+    optimizedRandomMove,
+    bestMove,
+  };
+
+  /*
+    
+    -Push all moves into an array  !Done
+    -Search through array for move that is hit but not sunk  !DONE
+    -Once on that square, look for hits (but not sunk) around the hit. Top, right, bottom left
+        -Need to have a way to not wrap around to next row on board e.g. 9 -> 10
+    -If hit is found around the hit, attack the opposite square. (left is hit, so attack right)
+        -If that fails, move in the original direction until there is a hit or a fail
+    -
+    
+    */
+}
+
+module.exports = ComputerLogic;
+
+
+/***/ }),
+
 /***/ "./src/modules/DOMController.js":
 /*!**************************************!*\
   !*** ./src/modules/DOMController.js ***!
@@ -242,40 +457,48 @@ function GameController() {
   const dom = DOMController();
 
   const playerBoard = Gameboard();
-  const computer = Player();
+  const computer = Player(playerBoard);
   const compBoard = Gameboard();
 
   function startGame() {
-    dom.renderPlacementPhase(playerBoard.swapAxis, shipPlacementHandler, shipPlacementHoverHandler);
+    dom.renderPlacementPhase(
+      playerBoard.swapAxis,
+      shipPlacementHandler,
+      shipPlacementHoverHandler
+    );
   }
-  
+
   function startBattlePhase() {
     compBoard.randomShipPlacement();
 
-    dom.renderBattlePhase()
+    dom.renderBattlePhase();
     dom.setupPlayerTurn(handleBattleHover, handleBattleClick);
   }
-  
+
   // During placement phase, determines whether ship placement would be valid, then renders that state
-  function shipPlacementHoverHandler (e) {
+  function shipPlacementHoverHandler(e) {
     // Identifier for square user is hovering over
     const squareId = Number(e.target.dataset.squareId);
-    
-    const {isValid, shipLocation} = playerBoard.isPlacementHoverValid(squareId);
-  
+
+    const { isValid, shipLocation } =
+      playerBoard.isPlacementHoverValid(squareId);
+
     // Render hover state to DOM
     dom.renderPlacementHoverStatus(isValid, shipLocation);
   }
-  
+
   function shipPlacementHandler(e) {
     const squareId = Number(e.target.dataset.squareId);
-  
+
     const isSuccessful = playerBoard.placeNextShip(squareId);
-  
+
     if (isSuccessful) {
       dom.refreshBoards(playerBoard, compBoard);
       if (playerBoard.isPlacementFinished()) {
-        dom.cleanUpPlacementPhase(shipPlacementHandler, shipPlacementHoverHandler);
+        dom.cleanUpPlacementPhase(
+          shipPlacementHandler,
+          shipPlacementHoverHandler
+        );
 
         startBattlePhase(handleBattleHover, handleBattleClick);
       }
@@ -283,7 +506,7 @@ function GameController() {
   }
 
   function handleBattleHover(e) {
-    const square = e.target
+    const square = e.target;
 
     // Add hover state
     dom.renderBattleHover(square, compBoard.getBoard());
@@ -295,55 +518,54 @@ function GameController() {
 
     // Do attack. If it returns true, hit was successful, refresh boards and setup for computer turn
     if (compBoard.receiveAttack(squareId)) {
-      e.target.removeEventListener('click', handleBattleClick);
+      e.target.removeEventListener("click", handleBattleClick);
       dom.refreshBoards(playerBoard, compBoard);
 
       // Check for win
       if (compBoard.allShipsSunk()) {
-        endGame('player')
-        return
+        endGame("player");
+        return;
       }
 
       dom.setupComputerTurn(handleBattleHover, handleBattleClick);
-      computerTurn()
+      computerTurn();
     }
   }
 
   function computerTurn() {
     // Attack player board
-    playerBoard.receiveAttack(computer.makeMove())
+    playerBoard.receiveAttack(computer.makeMove());
     dom.refreshBoards(playerBoard, compBoard);
 
     // Check for win
     if (playerBoard.allShipsSunk()) {
-      endGame('computer');
-      return
+      endGame("computer");
+      return;
     }
 
     dom.setupPlayerTurn(handleBattleHover, handleBattleClick);
   }
 
   function endGame(winner) {
-    const winnerText = winner === 'player' ? 'You' : 'The Computer';
+    const winnerText = winner === "player" ? "You" : "The Computer";
 
     dom.setupComputerTurn(handleBattleHover, handleBattleClick); // Removes event listeners for hover and click on the board
-    
+
     dom.renderEndGame(winnerText, handlePlayAgain);
   }
 
   function handlePlayAgain() {
-    alert('PLay again')
+    alert("PLay again");
     //TODO
   }
 
-
-
   return {
-    startGame
-  }
+    startGame,
+  };
 }
 
 module.exports = GameController;
+
 
 /***/ }),
 
@@ -561,29 +783,24 @@ module.exports = Gameboard
 /*!*******************************!*\
   !*** ./src/modules/Player.js ***!
   \*******************************/
-/***/ ((module) => {
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-const Player = () => {
-  const prevMoves = Array(100).fill().map(() => null)
+const ComputerLogic = __webpack_require__(/*! ./ComputerLogic */ "./src/modules/ComputerLogic.js");
 
-  const makeMove = () => {
-    let move = Math.floor(Math.random() * 100);
+const Player = (oppBoard) => {
+  const comp = ComputerLogic(oppBoard);
 
-    while (prevMoves[move] !== null) {
-      move = Math.floor(Math.random() * 100);
-    }
-
-    prevMoves[move] = 'hit';
-
-    return move
+  function makeMove() {
+    return comp.bestMove();
   }
 
   return {
     makeMove,
-  }
-}
+  };
+};
 
 module.exports = Player;
+
 
 /***/ }),
 

@@ -1,21 +1,15 @@
-const Player = () => {
-  const prevMoves = Array(100).fill().map(() => null)
+const ComputerLogic = require("./ComputerLogic");
 
-  const makeMove = () => {
-    let move = Math.floor(Math.random() * 100);
+const Player = (oppBoard) => {
+  const comp = ComputerLogic(oppBoard);
 
-    while (prevMoves[move] !== null) {
-      move = Math.floor(Math.random() * 100);
-    }
-
-    prevMoves[move] = 'hit';
-
-    return move
+  function makeMove() {
+    return comp.bestMove();
   }
 
   return {
     makeMove,
-  }
-}
+  };
+};
 
 module.exports = Player;
