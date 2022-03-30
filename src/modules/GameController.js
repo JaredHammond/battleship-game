@@ -81,7 +81,9 @@ function GameController() {
     }
   }
 
-  function computerTurn() {
+  async function computerTurn() {
+    await dom.animateComputerLogic(playerBoard);
+
     // Attack player board
     playerBoard.receiveAttack(computer.makeMove());
     dom.refreshBoards(playerBoard, compBoard);
@@ -104,7 +106,6 @@ function GameController() {
   }
 
   function handlePlayAgain() {
-
     playerBoard = Gameboard();
     computer = Player(playerBoard);
     compBoard = Gameboard();
