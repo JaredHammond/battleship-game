@@ -175,13 +175,12 @@ const DOMController = () => {
     compDomBoard.addEventListener("mouseleave", handleMouseLeaveBoard);
   }
 
-  function setupComputerTurn(handleBattleHover, handleBattleClick) {
-    let squares = Array.from(compDomBoard.children);
+  function setupComputerTurn() {
+    // TODO
+    document.getElementById("instruction").innerText = "Computer Turn";
 
-    squares.map((square) => {
-      square.removeEventListener("mouseenter", handleBattleHover);
-      square.removeEventListener("click", handleBattleClick);
-    });
+    // Fade out attack board and fade in the player's board
+    // Indicate computer's turn
   }
 
   function renderEndGame(winner, handlePlayAgain) {
@@ -218,7 +217,7 @@ const DOMController = () => {
   async function animateComputerLogic(playerBoard) {
     const squares = Array.from(playerDomBoard.children);
 
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {
       // Find square that hasn't been hit
       let sq = Math.floor(Math.random() * 100);
       while (playerBoard.getBoard()[sq].isHit) {

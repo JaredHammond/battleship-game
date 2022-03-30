@@ -9,6 +9,16 @@ function GameController() {
   let computer = Player(playerBoard);
   let compBoard = Gameboard();
 
+  let turn = "player";
+
+  function changeTurn() {
+    if (turn === "player") {
+      turn = "computer";
+    } else {
+      turn = "player";
+    }
+  };
+
   function startGame() {
     dom.renderPlacementPhase(
       playerBoard.swapAxis,
@@ -65,6 +75,10 @@ function GameController() {
   function handleBattleClick(e) {
     const squareId = e.target.dataset.squareId;
 
+    if (turn === "computer") {
+      return;
+    }
+
     // Do attack. If it returns true, hit was successful, refresh boards and setup for computer turn
     if (compBoard.receiveAttack(squareId)) {
       e.target.removeEventListener("click", handleBattleClick);
@@ -76,7 +90,8 @@ function GameController() {
         return;
       }
 
-      dom.setupComputerTurn(handleBattleHover, handleBattleClick);
+      changeTurn();
+      dom.setupComputerTurn();
       computerTurn();
     }
   }
@@ -94,13 +109,15 @@ function GameController() {
       return;
     }
 
-    dom.setupPlayerTurn(handleBattleHover, handleBattleClick);
+    // dom.setupPlayerTurn(handleBattleHover, handleBattleClick);
+    changeTurn();
+    console.log('becoming player turn');
   }
 
   function endGame(winner) {
     const winnerText = winner === "player" ? "You" : "The Computer";
 
-    dom.setupComputerTurn(handleBattleHover, handleBattleClick); // Removes event listeners for hover and click on the board
+    // dom.setupComputerTurn(handleBattleHover, handleBattleClick); // Removes event listeners for hover and click on the board
 
     dom.renderEndGame(winnerText, handlePlayAgain);
   }
