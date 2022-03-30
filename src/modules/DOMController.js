@@ -76,7 +76,7 @@ const DOMController = () => {
       const squareId = Number(square.dataset.squareId);
 
       // Remove hover state
-      square.classList.remove('valid', 'invalid', 'battleHover');
+      square.classList.remove('valid', 'invalid', 'battleHover', 'hit', 'sunk', 'shipHit', 'ship');
 
       // Add ship locations to player board
       if (domBoard === playerDomBoard) {
@@ -201,6 +201,17 @@ const DOMController = () => {
     gameArea.appendChild(endModal);
   }
 
+  function cleanUpEndGame(playerBoard, compBoard) {
+    while(gameArea.firstChild) {
+      gameArea.removeChild(gameArea.firstChild);
+    }
+
+    playerDomBoard.classList.remove('left');
+    compDomBoard.classList.remove('right');
+
+    refreshBoards(playerBoard, compBoard);
+  }
+
   return {
     renderPlacementPhase,
     renderPlacementHoverStatus,
@@ -211,6 +222,7 @@ const DOMController = () => {
     setupComputerTurn,
     setupPlayerTurn,
     renderEndGame,
+    cleanUpEndGame
   }
 }
 

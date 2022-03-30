@@ -197,18 +197,6 @@ function ComputerLogic(oppBoard, prevMoves = []) {
     optimizedRandomMove,
     bestMove,
   };
-
-  /*
-    
-    -Push all moves into an array  !Done
-    -Search through array for move that is hit but not sunk  !DONE
-    -Once on that square, look for hits (but not sunk) around the hit. Top, right, bottom left
-        -Need to have a way to not wrap around to next row on board e.g. 9 -> 10
-    -If hit is found around the hit, attack the opposite square. (left is hit, so attack right)
-        -If that fails, move in the original direction until there is a hit or a fail
-    -
-    
-    */
 }
 
 module.exports = ComputerLogic;
@@ -300,7 +288,7 @@ const DOMController = () => {
       const squareId = Number(square.dataset.squareId);
 
       // Remove hover state
-      square.classList.remove('valid', 'invalid', 'battleHover');
+      square.classList.remove('valid', 'invalid', 'battleHover', 'hit', 'sunk', 'shipHit', 'ship');
 
       // Add ship locations to player board
       if (domBoard === playerDomBoard) {
@@ -425,6 +413,17 @@ const DOMController = () => {
     gameArea.appendChild(endModal);
   }
 
+  function cleanUpEndGame(playerBoard, compBoard) {
+    while(gameArea.firstChild) {
+      gameArea.removeChild(gameArea.firstChild);
+    }
+
+    playerDomBoard.classList.remove('left');
+    compDomBoard.classList.remove('right');
+
+    refreshBoards(playerBoard, compBoard);
+  }
+
   return {
     renderPlacementPhase,
     renderPlacementHoverStatus,
@@ -435,6 +434,7 @@ const DOMController = () => {
     setupComputerTurn,
     setupPlayerTurn,
     renderEndGame,
+    cleanUpEndGame
   }
 }
 
@@ -456,9 +456,9 @@ const Player = __webpack_require__(/*! ./Player */ "./src/modules/Player.js");
 function GameController() {
   const dom = DOMController();
 
-  const playerBoard = Gameboard();
-  const computer = Player(playerBoard);
-  const compBoard = Gameboard();
+  let playerBoard = Gameboard();
+  let computer = Player(playerBoard);
+  let compBoard = Gameboard();
 
   function startGame() {
     dom.renderPlacementPhase(
@@ -555,8 +555,14 @@ function GameController() {
   }
 
   function handlePlayAgain() {
-    alert("PLay again");
-    //TODO
+
+    playerBoard = Gameboard();
+    computer = Player(playerBoard);
+    compBoard = Gameboard();
+
+    dom.cleanUpEndGame(playerBoard, compBoard);
+
+    startGame();
   }
 
   return {

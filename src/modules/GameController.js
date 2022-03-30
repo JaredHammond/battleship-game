@@ -5,9 +5,9 @@ const Player = require("./Player");
 function GameController() {
   const dom = DOMController();
 
-  const playerBoard = Gameboard();
-  const computer = Player(playerBoard);
-  const compBoard = Gameboard();
+  let playerBoard = Gameboard();
+  let computer = Player(playerBoard);
+  let compBoard = Gameboard();
 
   function startGame() {
     dom.renderPlacementPhase(
@@ -104,8 +104,14 @@ function GameController() {
   }
 
   function handlePlayAgain() {
-    alert("PLay again");
-    //TODO
+
+    playerBoard = Gameboard();
+    computer = Player(playerBoard);
+    compBoard = Gameboard();
+
+    dom.cleanUpEndGame(playerBoard, compBoard);
+
+    startGame();
   }
 
   return {
