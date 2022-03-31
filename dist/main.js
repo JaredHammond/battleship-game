@@ -247,13 +247,8 @@ const DOMController = () => {
 
     gameArea.appendChild(axisButton);
 
-    let squares = Array.from(playerDomBoard.children);
-
-    squares.forEach((square) => {
-      square.addEventListener("mouseenter", hoverHandler);
-      square.addEventListener("click", clickHandler);
-    });
-
+    playerDomBoard.addEventListener("mouseover", hoverHandler);
+    playerDomBoard.addEventListener("click", clickHandler);
     playerDomBoard.addEventListener("mouseleave", handleMouseLeaveBoard);
 
     gameArea.appendChild(playerDomBoard);
@@ -344,17 +339,18 @@ const DOMController = () => {
 
   function cleanUpPlacementPhase(clickHandler, hoverHandler) {
     document.getElementById("axisButton").remove();
-    const squares = Array.from(playerDomBoard.children);
 
-    squares.map((square) => {
-      square.removeEventListener("mouseenter", hoverHandler);
-      square.removeEventListener("click", clickHandler);
-    });
+    playerDomBoard.removeEventListener("mouseover", hoverHandler);
+    playerDomBoard.removeEventListener("click", clickHandler);
   }
 
-  function renderBattlePhase() {
-    playerDomBoard.classList.add("left");
+  function renderBattlePhase(handleBattleHover, handleBattleClick) {
+    playerDomBoard.classList.add("left", "inactive");
     compDomBoard.classList.add("right");
+
+    compDomBoard.addEventListener("mouseover", handleBattleHover);
+    compDomBoard.addEventListener("click", handleBattleClick);
+    compDomBoard.addEventListener("mouseleave", handleMouseLeaveBoard);
 
     gameArea.appendChild(compDomBoard);
   }
@@ -373,29 +369,32 @@ const DOMController = () => {
     square.classList.add("battleHover");
   }
 
-  function setupPlayerTurn(handleBattleHover, handleBattleClick) {
+  function setupPlayerTurn() {
     const instruction = document.getElementById("instruction");
     instruction.innerHTML = "Attack your opponent's board";
 
-    const compSquares = Array.from(compDomBoard.children);
-
-    compSquares.map((square) => {
-      square.addEventListener("mouseenter", handleBattleHover);
-      square.addEventListener("click", handleBattleClick);
-    });
-
-    compDomBoard.addEventListener("mouseleave", handleMouseLeaveBoard);
+    playerDomBoard.classList.add("inactive");
+    compDomBoard.classList.remove("inactive");
   }
 
   function setupComputerTurn() {
     // TODO
     document.getElementById("instruction").innerText = "Computer Turn";
+    playerDomBoard.classList.remove("inactive");
+    compDomBoard.classList.add("inactive");
+  }
 
-    // Fade out attack board and fade in the player's board
-    // Indicate computer's turn
+  function removeBattleEventListeners(handleBattleClick, handleBattleHover) {
+    compDomBoard.removeEventListener("mouseover", handleBattleHover);
+    compDomBoard.removeEventListener("click", handleBattleClick);
   }
 
   function renderEndGame(winner, handlePlayAgain) {
+    removeBattleEventListeners();
+
+    playerDomBoard.classList.add("inactive");
+    compDomBoard.classList.add("inactive");
+
     let endModal = document.createElement("div");
     endModal.id = "endModal";
 
@@ -415,13 +414,13 @@ const DOMController = () => {
     gameArea.appendChild(endModal);
   }
 
-  function cleanUpEndGame(playerBoard, compBoard) {
+  function cleanUpForPlayAgain(playerBoard, compBoard) {
     while (gameArea.firstChild) {
       gameArea.removeChild(gameArea.firstChild);
     }
 
-    playerDomBoard.classList.remove("left");
-    compDomBoard.classList.remove("right");
+    playerDomBoard.classList.remove("left", "inactive");
+    compDomBoard.classList.remove("right", "inactive");
 
     refreshBoards(playerBoard, compBoard);
   }
@@ -429,7 +428,7 @@ const DOMController = () => {
   async function animateComputerLogic(playerBoard) {
     const squares = Array.from(playerDomBoard.children);
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 7; i++) {
       // Find square that hasn't been hit
       let sq = Math.floor(Math.random() * 100);
       while (playerBoard.getBoard()[sq].isHit) {
@@ -452,7 +451,7 @@ const DOMController = () => {
     setupComputerTurn,
     setupPlayerTurn,
     renderEndGame,
-    cleanUpEndGame,
+    cleanUpForPlayAgain,
     animateComputerLogic,
   };
 };
@@ -487,7 +486,7 @@ function GameController() {
     } else {
       turn = "player";
     }
-  };
+  }
 
   function startGame() {
     dom.renderPlacementPhase(
@@ -500,12 +499,16 @@ function GameController() {
   function startBattlePhase() {
     compBoard.randomShipPlacement();
 
-    dom.renderBattlePhase();
-    dom.setupPlayerTurn(handleBattleHover, handleBattleClick);
+    dom.renderBattlePhase(handleBattleHover, handleBattleClick);
+    dom.setupPlayerTurn();
   }
 
   // During placement phase, determines whether ship placement would be valid, then renders that state
   function shipPlacementHoverHandler(e) {
+    if (!e.target.classList.contains("square")) {
+      return;
+    }
+
     // Identifier for square user is hovering over
     const squareId = Number(e.target.dataset.squareId);
 
@@ -517,6 +520,10 @@ function GameController() {
   }
 
   function shipPlacementHandler(e) {
+    if (!e.target.classList.contains("square")) {
+      return;
+    }
+
     const squareId = Number(e.target.dataset.squareId);
 
     const isSuccessful = playerBoard.placeNextShip(squareId);
@@ -535,6 +542,10 @@ function GameController() {
   }
 
   function handleBattleHover(e) {
+    if (!e.target.classList.contains("square")) {
+      return;
+    }
+
     const square = e.target;
 
     // Add hover state
@@ -579,15 +590,12 @@ function GameController() {
       return;
     }
 
-    // dom.setupPlayerTurn(handleBattleHover, handleBattleClick);
+    dom.setupPlayerTurn();
     changeTurn();
-    console.log('becoming player turn');
   }
 
   function endGame(winner) {
     const winnerText = winner === "player" ? "You" : "The Computer";
-
-    // dom.setupComputerTurn(handleBattleHover, handleBattleClick); // Removes event listeners for hover and click on the board
 
     dom.renderEndGame(winnerText, handlePlayAgain);
   }
@@ -597,7 +605,7 @@ function GameController() {
     computer = Player(playerBoard);
     compBoard = Gameboard();
 
-    dom.cleanUpEndGame(playerBoard, compBoard);
+    dom.cleanUpForPlayAgain(playerBoard, compBoard);
 
     startGame();
   }

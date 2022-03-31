@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+body {
+  background: rgb(187, 187, 187);
+}
+
 h1 {
   text-align: center;
 }
@@ -18,11 +22,13 @@ button {
 }
 
 .board {
+  box-sizing: content-box;
   width: 400px;
   height: 400px;
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
+  border: white 4px solid;
 }
 
 .square {
@@ -85,12 +91,28 @@ button {
   margin-right: auto;
 }
 
+.inactive {
+  opacity: 0.9;
+  position: relative;
+  border: rgb(187, 187, 187) 4px solid;
+}
+
+.inactive::after {
+  position: absolute;
+  content: "";
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(26, 50, 77, 0.4);
+}
+
 #endModal {
   position: absolute;
   width: 400px;
   height: 300px;
   border-radius: 10px;
-  border:rgb(32, 32, 32) solid 1px;
+  border: rgb(32, 32, 32) solid 1px;
   background-color: deepskyblue;
   top: 100px;
   left: 250px;

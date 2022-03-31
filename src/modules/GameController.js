@@ -17,7 +17,7 @@ function GameController() {
     } else {
       turn = "player";
     }
-  };
+  }
 
   function startGame() {
     dom.renderPlacementPhase(
@@ -30,12 +30,16 @@ function GameController() {
   function startBattlePhase() {
     compBoard.randomShipPlacement();
 
-    dom.renderBattlePhase();
-    dom.setupPlayerTurn(handleBattleHover, handleBattleClick);
+    dom.renderBattlePhase(handleBattleHover, handleBattleClick);
+    dom.setupPlayerTurn();
   }
 
   // During placement phase, determines whether ship placement would be valid, then renders that state
   function shipPlacementHoverHandler(e) {
+    if (!e.target.classList.contains("square")) {
+      return;
+    }
+
     // Identifier for square user is hovering over
     const squareId = Number(e.target.dataset.squareId);
 
@@ -47,6 +51,10 @@ function GameController() {
   }
 
   function shipPlacementHandler(e) {
+    if (!e.target.classList.contains("square")) {
+      return;
+    }
+
     const squareId = Number(e.target.dataset.squareId);
 
     const isSuccessful = playerBoard.placeNextShip(squareId);
@@ -65,6 +73,10 @@ function GameController() {
   }
 
   function handleBattleHover(e) {
+    if (!e.target.classList.contains("square")) {
+      return;
+    }
+
     const square = e.target;
 
     // Add hover state
@@ -109,15 +121,12 @@ function GameController() {
       return;
     }
 
-    // dom.setupPlayerTurn(handleBattleHover, handleBattleClick);
+    dom.setupPlayerTurn();
     changeTurn();
-    console.log('becoming player turn');
   }
 
   function endGame(winner) {
     const winnerText = winner === "player" ? "You" : "The Computer";
-
-    // dom.setupComputerTurn(handleBattleHover, handleBattleClick); // Removes event listeners for hover and click on the board
 
     dom.renderEndGame(winnerText, handlePlayAgain);
   }
@@ -127,7 +136,7 @@ function GameController() {
     computer = Player(playerBoard);
     compBoard = Gameboard();
 
-    dom.cleanUpEndGame(playerBoard, compBoard);
+    dom.cleanUpForPlayAgain(playerBoard, compBoard);
 
     startGame();
   }
